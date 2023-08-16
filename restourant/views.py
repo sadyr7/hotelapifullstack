@@ -6,6 +6,7 @@ from rest_framework.viewsets import ModelViewSet
 from restourant.models import Category_restourant, Product, Like
 from .serializers import ProductSerializers, CategorySerializers, LikeSerializer
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.permissions import AllowAny
 
 class CategoryViewSet(ModelViewSet):
     queryset = Category_restourant.objects.all()
@@ -34,3 +35,7 @@ class LikeDeleteView(generics.DestroyAPIView):
     queryset = Like.objects.all()
     permission_classes = (permissions.IsAuthenticated,)
     lookup_field = 'id'
+
+
+
+

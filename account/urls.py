@@ -1,7 +1,7 @@
 from django.urls import path, include
 from rest_framework import routers
 from rest_framework_simplejwt.views import TokenRefreshView
-from account.views import RegisterView, LoginView, UserListView, RegistrationPhoneView, VerifyEmail, UserViewSet
+from account.views import RegisterView, LoginView, UserListView, RegistrationPhoneView, VerifyEmail, UserViewSet, ResetPasswordConfirmView, ResetPasswordView
 from hotel.views import BookingViewSet, HotelViewSet, CommentViewSet
 from restourant.views import ProductViewSet, CategoryViewSet, LikeCreateView
 from services_pr.views import ServicesViewSet, SelectViewSet, BookingUnderServicesViewSet
@@ -26,6 +26,8 @@ urlpatterns = [
     path('email-verify/', VerifyEmail.as_view(), name='email-verify'),
     path('bookings/', UserListView.as_view()),
     # path('', include(router.urls)),
+    path('reset-password/', ResetPasswordView.as_view()),
+    path('reset-password/confirm/', ResetPasswordConfirmView.as_view()),
 ]
 
 

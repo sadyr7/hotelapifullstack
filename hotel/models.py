@@ -14,12 +14,21 @@ class AbstractNameDescription(models.Model):
         abstract = True
 
 class Hotel(AbstractNameDescription):
+    RATING = (
+        (1, '⭐️'),
+        (2, '⭐️⭐️'),
+        (3, '⭐️⭐️⭐️'),
+        (4, '⭐️⭐️⭐️⭐️'),
+        (5, '⭐️⭐️⭐️⭐️⭐️'),
+    )
 
     category = models.CharField(max_length=250)
     image1 = models.ImageField()
     image2 = models.ImageField(blank=True, null=True)
     image3 = models.ImageField(blank=True, null=True)
     image4 = models.ImageField(blank=True, null=True)
+    rating = models.IntegerField(choices=RATING, blank=True, null=True)
+
 
     def __str__(self):
         return self.category

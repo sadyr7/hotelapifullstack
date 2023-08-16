@@ -2,6 +2,9 @@ from rest_framework import serializers
 from account.models import *
 from account.send_sms import send_activation_sms
 from django.contrib.auth import get_user_model
+from rest_framework import serializers
+from django.contrib.auth import get_user_model
+from rest_framework.response import Response
 
 from django.contrib.auth.hashers import make_password, check_password
 
@@ -41,33 +44,7 @@ class RegisterSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         user = User.objects.create_user(**validated_data)
         return user
-    # def create(self, validated_data):
-    #     return User.objects.create(
-    #         email=validated_data.get('email'),
-    #         first_name=validated_data.get('first_name'),
-    #         last_name=validated_data.get('last_name'),
-    #         phone=validated_data.get('phone_number'),
-    #         address=validated_data.get('address'),
-    #         password=make_password(validated_data.get('password'))
-    #     )
 
-
-
-# class ActivationSerializer(serializers.Serializer):
-#     code = serializers.CharField(required=True)
-#
-#     def validate(self, attrs):
-#         self.code = attrs['code']
-#         return attrs
-#
-#     def save(self, **kwargs):
-#         try:
-#             user = User.objects.get(activation_code=self.code)
-#             user.is_active = True
-#             user.activation_code = ''
-#             user.save()
-#         except:
-#             self.fail('неверный код')
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -108,11 +85,6 @@ class RegisterPhoneSerializer(serializers.ModelSerializer):
         send_activation_sms(user.phone_number, user.activation_code)
         return user
 
-
-# class ChangePasswordSerializer(serializers.Serializer):
-#     model = CustomUser, UserManager
-#     old_password = serializers.CharField(required=True)
-#     new_password = serializers.CharField(required=True)
 
 class ChangePasswordSerializer(UserSerializer):
     old_password = serializers.CharField(write_only=True)
@@ -165,3 +137,66 @@ class GuestReadSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = ['id', 'first_name', 'last_name', 'email', 'phone_number']
+
+
+
+User = get_user_model()
+
+
+
+class ActivationSerializer(serializers.Serializer):
+    activation_code = serializers.CharField(required=True)
+
+    def validate(self, attrs):
+        self.activation_code = attrs['activation_code']
+        return attrs
+
+    def save(self, **kwargs):
+        try:
+            user = User.objects.get(activation_code=self.activation_code)
+            user.is_active = True
+            user.activation_code = ''
+            user.balance += 500
+            user.save()
+        except:
+            self.fail('Incorrect activation code')
+
+
+class ResetPasswordSerializer(serializers.Serializer):
+    new_password = serializers.CharField(min_length=6, max_length=20, required=True, write_only=True)
+    password_confirmation = serializers.CharField(min_length=6, max_length=20, required=True, write_only=True)
+
+    def validate(self, attrs):
+        password = attrs['new_password']
+        password_confirmation = attrs.pop('password_confirmation')
+        if password != password_confirmation:
+            raise serializers.ValidationError(
+                'Passwords must be the same'
+            )
+        if password.isdigit() or password.isalpha():
+            raise serializers.ValidationError(
+                'The password must contain letters and numbers'
+            )
+        return attrs
+
+
+class GetActivationSerializer(serializers.Serializer):
+    email = serializers.EmailField(required=True)
+
+
+class TopUpSerializer(serializers.Serializer):
+    amount = serializers.DecimalField(decimal_places=2, max_digits=9)
+
+    def validate(self, attrs):
+        user = self.context['user']
+        if not User.objects.filter(email=user.email).exists():
+            return Response('Current user doesnt exist', status=400)
+        return attrs
+
+
+class PaymentSerializer(serializers.Serializer):
+    amount = serializers.DecimalField(decimal_places=2, max_digits=9)
+    order = serializers.IntegerField(required=True)
+
+    def validate(self, attrs):
+        order_id = attrs['order']

@@ -1,5 +1,7 @@
 from rest_framework import serializers
 from restourant.models import Category_restourant, Product, Like
+from account.models import CustomUser
+
 
 class CategorySerializers(serializers.ModelSerializer):
     class Meta:
@@ -37,3 +39,13 @@ class LikedUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = Like
         fields = ['user', 'user_username']
+
+
+class CustomUserSerializer(serializers.ModelSerializer):
+    favorites = serializers.SerializerMethodField()
+
+    class Meta:
+        model = CustomUser
+        fields = ('__all__')
+
+

@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-3bxn6((4hsjz@ipok+s+pw2_0n0#vjg$dw1)n9=t&782)-m02@
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['0.0.0.0', 'localhost' '16.170.205.114']
+ALLOWED_HOSTS = []
 
 #'lxdlwbubuykzarrx'
 # Application definition
@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'drf_api_logger',
     'django_redis',
     'drf_yasg',
+    'django_celery_beat',
     #MYAPPS
     'account',
     'hotel',
@@ -99,10 +100,10 @@ WSGI_APPLICATION = 'hotelApi.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'hack_v2',
-        'USER': 'bekbolsun',
+        'NAME': 'hack_v4',
+        'USER': 'sadyrbek',
         'PASSWORD': '1',
-        'HOST': 'db',
+        'HOST': '127.0.0.1',
         'PORT': '5432',
     }
 }
@@ -201,28 +202,36 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:8000"
 ]
 
+DRF_API_LOGGER_DATABASE = True
+DRF_API_LOGGER_PATH_TYPE = 'FULL_PATH'
 
-CACHES = {
-    'default': {
-        'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': 'redis://127.0.0.1:6379/',
-        'OPTIONS': {
-            'CLIENT_CLASS': 'django_redis.client.DefaultClient'
-        },
+# CACHES = {
+#     'default': {
+#         'BACKEND': 'django_redis.cache.RedisCache',
+#         'LOCATION': 'redis://localhost:6379/',
+#         'OPTIONS': {
+#             'CLIENT_CLASS': 'django_redis.client.DefaultClient'
+#         },
+#     }
+# }
+
+LOGGING = {
+    'version': 1,
+    'handlers': {
+        'console': {'class': 'logging.StreamHandler'}
+    },
+    'loggers': {
+        'django.db.backends': {
+            'handlers': ['console'],
+            'level': 'DEBUG'  # WARNING
+        }
     }
 }
+
 
 REDIS_HOST = 'redis'
 REDIS_PORT = 6379
 
-CACHES = {
-    'default': {
-        'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': f'redis://{REDIS_HOST}:{REDIS_PORT}/',
-        'OPTIONS': {
-            'CLIENT_CLASS': 'django_redis.client.DefaultClient'
-        },
-    }
-}
+
 
 CACHE_TTL = 60 * 15
